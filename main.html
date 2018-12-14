@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link href="https://cdn.bootcss.com/Swiper/4.4.2/css/swiper.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="./css/mui.min.css">
+		<script type="text/jscript">
+			document.documentElement.style.fontSize=document.documentElement.clientWidth/7.5+'px'
+		</script>
+		<style>
+			html,body {
+				background-color: #efeff4;
+			}
+			.swiper-container,.swiper-slide{
+				height: 3rem;
+			}
+			.swiper-slide img{
+				width: 100%;
+				height: 100%;
+			}
+			.search{
+				width:80px;
+				height:40px;
+				background: url(https://sxsimg.xiaoyuanzhao.com/static/sxs-wap/img/search.png?v=d0f824f091f48987bf62f25b87e7e650) no-repeat 50% 50% #f5f5f5;
+				border-radius: 30px;
+				position: absolute;
+				top: 15px;
+				right: 15px;
+				z-index: 10;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<main-swiper></main-swiper>
+			<div class="search" @tap="toSeach"></div>
+		</div>
+		<template id="main-swiper">
+			<div class="swiper-container" ref='el'>
+				<div class="swiper-wrapper">
+					<div class="swiper-slide" v-for="item in items" :key="item.campaign_uuid">
+						<img  :src='item.img' alt='' />
+					</div>
+				</div>
+				<div class="swiper-pagination"></div>
+			</div>
+		</template>
+	</body>
+	<script src="https://cdn.bootcss.com/Swiper/4.4.2/js/swiper.min.js"></script>
+	<script src="https://cdn.bootcss.com/vue/2.5.17/vue.min.js"></script>
+	<script src="./js/mui.min.js"></script>
+	<script>
+		//注册全局组件
+		Vue.component('main-swiper',{
+			template:'#main-swiper',
+			data(){
+				return {
+					items:[]
+				}
+			},
+			created(){
+				let params = {
+					city: '全国',
+					client_type: 'wap',
+					url: 'https://wap.shixiseng.com/',
+					uri: '/',
+					req_id: '',
+					uuid: '',
+					refer: '',
+					ad_groups: JSON.stringify([{"ad_position":"P_9_1","max_num":10}])
+				}
+				mui.ajax({
+					url:'https://wap.shixiseng.com/operations/recommend',
+					type:'POST',
+					dataType:'json',
+					data:params,
+					headers:{'Content-Type':'application/x-www-form-urlencoded'},
+					success:(res)=>{
+						this.items = res.msg['P_9_1']
+						this.$nextTick(()=>{
+							new Swiper(this.$refs.el,{
+								loop:true,
+								autoplay:{
+									//保证用户操作后,不会停止自动
+									disableOnInteraction: false,
+								},
+								pagination: { el: '.swiper-pagination' }
+							})
+						})
+					}
+				})
+			}
+		})
+		mui.init();
+		//根实例
+		new Vue({
+			el:"#app",
+			methods:{
+				//点击搜索执行
+				toSeach(){
+// 					mui.plusReady(()=>{
+// 						//创建webview并将其以动画的方式显示
+// 						let search_view = plus.webview.create('search.html','search.html')
+// 						search_view.show('slide-in-right')
+// 					})
+					
+					//打开新页面
+					mui.openWindow({
+ 						url:'search.html',
+ 						id:'search.html'
+ 					})
+				}
+			}
+		})
+	</script>
+</html>
